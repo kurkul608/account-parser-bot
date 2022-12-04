@@ -33,14 +33,14 @@ bot.on(message("text"), (ctx) => ctx.reply("👍"));
 bot.launch();
 
 const bootstrap = async () => {
-  // const jobThreeHours = new CronJob("0 0 */3 * * *", () => {
-  //   eldoradoFunction(bot);
-  // });
-  // jobThreeHours.start();
-  const jobMin = new CronJob("0 */1 * * * *", () => {
+  const jobThreeHours = new CronJob("0 0 */3 * * *", () => {
     eldoradoFunction(bot);
   });
-  jobMin.start();
+  jobThreeHours.start();
+  // const jobMin = new CronJob("0 */1 * * * *", () => {
+  //   eldoradoFunction(bot);
+  // });
+  // jobMin.start();
   try {
     if (process.env.MONGO_URI) {
       await mongoose.connect(process.env.MONGO_URI);
