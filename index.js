@@ -1,4 +1,4 @@
-const { Telegraf } = require("telegraf");
+const { Telegraf, Markup } = require("telegraf");
 const { message } = require("telegraf/filters");
 const CronJob = require("cron").CronJob;
 const { eldoradoFunction } = require("./eldorado");
@@ -6,16 +6,17 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const UserModel = require("./models/user.model");
 
-// const users = [
-//   {
-//     chatId: 473462820,
-//     sendInfo: true,
-//   },
-// ];
-
+const botButtons = Markup.keyboard([
+  [
+    {
+      text: "Получить актуальные данные прямо сейчас ✌",
+      callback_data: "get_actual_data",
+    },
+  ],
+]);
 const bot = new Telegraf(process.env.BOT_TOKEN);
 bot.start(async (ctx) => {
-  ctx.reply("Welcome");
+  ctx.reply("Welcome", botButtons);
   const from = ctx.update.message.from;
   const chat = ctx.update.message.chat;
   const searchedUser = await UserModel.findOne({ id: from.id });
@@ -29,7 +30,14 @@ bot.start(async (ctx) => {
     await user.save();
   }
 });
-bot.on(message("text"), (ctx) => ctx.reply("👍"));
+bot.on(message("text"), (ctx) => {
+  if (ctx.message.text === "Получить актуальные данные прямо сейчас ✌") {
+    ctx.reply("Делаю запрос!", botButtons);
+    eldoradoFunction(bot);
+  } else {
+    ctx.reply("👍", botButtons);
+  }
+});
 bot.launch();
 
 const bootstrap = async () => {
