@@ -34,15 +34,9 @@ bot.start(async (ctx) => {
 bot.on(message("text"), async (ctx) => {
   if (ctx.message.text === "Получить актуальные данные прямо сейчас ✌") {
     ctx.reply("Делаю запрос!", botButtons);
-    await bot.telegram.sendMessage(
-      user.chatId,
-      "⚠️⚠️Начинаю анализ по Eldorado⚠️⚠️"
-    );
+    await ctx.reply("⚠️⚠️Начинаю анализ по Eldorado⚠️⚠️", botButtons);
     await eldoradoFunction(bot);
-    await bot.telegram.sendMessage(
-      user.chatId,
-      "⚠️⚠️Начинаю анализ по FunPay⚠️⚠️"
-    );
+    await ctx.reply("⚠️⚠️Начинаю анализ по FunPay⚠️⚠️", botButtons);
     await funPayParser(bot);
   } else {
     ctx.reply("👍", botButtons);
