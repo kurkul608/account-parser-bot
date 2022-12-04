@@ -1,10 +1,11 @@
 const { Telegraf, Markup } = require("telegraf");
 const { message } = require("telegraf/filters");
 const CronJob = require("cron").CronJob;
-const { eldoradoFunction } = require("./eldorado");
+const { eldoradoFunction } = require("./parsers/eldorado");
 require("dotenv").config();
 const mongoose = require("mongoose");
 const UserModel = require("./models/user.model");
+const { funPayParser } = require("./parsers/funpay");
 
 const botButtons = Markup.keyboard([
   [
@@ -30,10 +31,19 @@ bot.start(async (ctx) => {
     await user.save();
   }
 });
-bot.on(message("text"), (ctx) => {
+bot.on(message("text"), async (ctx) => {
   if (ctx.message.text === "Получить актуальные данные прямо сейчас ✌") {
     ctx.reply("Делаю запрос!", botButtons);
-    eldoradoFunction(bot);
+    await bot.telegram.sendMessage(
+      user.chatId,
+      "⚠️⚠️Начинаю анализ по Eldorado⚠️⚠️"
+    );
+    await eldoradoFunction(bot);
+    await bot.telegram.sendMessage(
+      user.chatId,
+      "⚠️⚠️Начинаю анализ по FunPay⚠️⚠️"
+    );
+    await funPayParser(bot);
   } else {
     ctx.reply("👍", botButtons);
   }
@@ -41,12 +51,14 @@ bot.on(message("text"), (ctx) => {
 bot.launch();
 
 const bootstrap = async () => {
-  const jobThreeHours = new CronJob("0 0 */3 * * *", () => {
-    eldoradoFunction(bot);
+  const jobThreeHours = new CronJob("0 0 */3 * * *", async () => {
+    await eldoradoFunction(bot);
+    await funPayParser(bot);
   });
   jobThreeHours.start();
-  // const jobMin = new CronJob("0 */1 * * * *", () => {
-  //   eldoradoFunction(bot);
+  // const jobMin = new CronJob("0 */1 * * * *", async () => {
+  //   await eldoradoFunction(bot);
+  //   await funPayParser(bot);
   // });
   // jobMin.start();
   try {

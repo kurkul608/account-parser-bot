@@ -1,6 +1,6 @@
 const moment = require("moment");
-const UserModel = require("./models/user.model");
-const AccountModel = require("./models/account.model");
+const UserModel = require("../models/user.model");
+const AccountModel = require("../models/account.model");
 
 // const data = [];
 const requestsEldorado = [
@@ -78,7 +78,7 @@ const eldoradoFunction = async (bot) => {
     if (user.sendInfo) {
       await bot.telegram.sendMessage(
         user.chatId,
-        "Анализ был успешно произведен"
+        "Анализ по Eldorado был успешно произведен"
       );
 
       let text = "❗Данные по Eldorado❗\n";

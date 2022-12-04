@@ -31,12 +31,13 @@ const Account = new Schema({
     required: true,
   },
   lowestUser: {
+    required: false,
     id: {
       type: String,
     },
     username: {
       type: String,
-      required: true,
+      required: false,
     },
     picture: {
       smallPicture: String,
