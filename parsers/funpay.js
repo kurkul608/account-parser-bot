@@ -82,7 +82,6 @@ const funPayParser = async (bot) => {
       }
     });
   const users = await UserModel.find();
-  console.log(users);
   for (const user of users) {
     if (user.sendInfo) {
       await bot.telegram.sendMessage(
