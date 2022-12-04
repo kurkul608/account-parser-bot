@@ -1,7 +1,8 @@
 const moment = require("moment");
 const UserModel = require("./models/user.model");
+const AccountModel = require("./models/account.model");
 
-const data = [];
+// const data = [];
 const requestsEldorado = [
   {
     name: "bronze",
@@ -37,11 +38,10 @@ const eldoradoFunction = async (bot) => {
   for (const requestData of requestsEldorado) {
     await fetch(requestData.url)
       .then((response) => response.json())
-      .then((json) => {
+      .then(async (json) => {
         const results = json.results;
-        data.push({
-          date: moment(),
-          results,
+        const account = await new AccountModel({
+          date: moment().format(),
           siteName: "Eldorado",
           name: requestData.name,
           total: json.recordCount,
@@ -70,6 +70,7 @@ const eldoradoFunction = async (bot) => {
           ).offer.offerTitle,
           lowestUser: (results[0] || { user: undefined }).user,
         });
+        await account.save();
       });
   }
   const users = await UserModel.find();
@@ -79,18 +80,23 @@ const eldoradoFunction = async (bot) => {
         user.chatId,
         "Анализ был успешно произведен"
       );
+
       let text = "❗Данные по Eldorado❗\n";
-      const eldoradoData = data.filter(
-        (result) => result.siteName === "Eldorado"
-      );
-      if (eldoradoData.length) {
+
+      const eldoradoData = await AccountModel.find({
+        siteName: "Eldorado",
+      })
+        .sort({ date: "desc" })
+        .limit(requestsEldorado.length * 2);
+
+      if (eldoradoData && eldoradoData.length) {
         requestsEldorado.forEach((req) => {
           const filteredSortedData = eldoradoData
             .filter((result) => result.name === req.name)
-            .sort((a, b) => a.date.unix() - b.date.unix());
+            .sort((a, b) => moment(a.date).unix() - moment(b.date).unix());
           if (filteredSortedData.length) {
-            text += `\nНа ${filteredSortedData[0].date.format(
-              "YYYY MM DD hh:mm"
+            text += `\nНа ${moment(filteredSortedData[0].date).format(
+              "YYYY MM DD HH:mm"
             )}. ✅ \n На площадке продается ${
               filteredSortedData[0].total
             } аккаунтов ${
@@ -102,7 +108,7 @@ const eldoradoFunction = async (bot) => {
             if (filteredSortedData[1]) {
               const difference =
                 filteredSortedData[1].total - filteredSortedData[0].total;
-              text += `За 3 часа количество аккаунтов ${
+              text += `За прошедшие 3 часа количество аккаунтов ${
                 difference === 0
                   ? "не изменилось"
                   : difference > 0
@@ -120,4 +126,4 @@ const eldoradoFunction = async (bot) => {
   }
 };
 
-module.exports = { eldoradoFunction, requestsEldorado, data };
+module.exports = { eldoradoFunction, requestsEldorado };
