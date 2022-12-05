@@ -34,7 +34,7 @@ const sendReport = async ({ bot, startText, siteName, limit, searchWords }) => {
               filteredSortedData[0].lowestUser.username.split("\n").length > 1
                 ? filteredSortedData[0].lowestUser.username.split("\n")[1]
                 : filteredSortedData[0].lowestUser.username.split("\n")
-            }. 👤\n`;
+            }. 👤\nНазвание лота:  ${filteredSortedData[0].lowestTitle}.  \n`;
 
             if (filteredSortedData[1]) {
               const difference =
@@ -45,7 +45,7 @@ const sendReport = async ({ bot, startText, siteName, limit, searchWords }) => {
                   : difference > 0
                   ? `уменьшилось на ${Math.abs(difference)}`
                   : `увеличилось на ${Math.abs(difference)}`
-              }`;
+              }\n`;
             }
           }
         });
