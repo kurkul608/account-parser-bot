@@ -35,9 +35,9 @@ bot.on(message("text"), async (ctx) => {
   if (ctx.message.text === "Получить актуальные данные прямо сейчас ✌") {
     await ctx.reply("Делаю запрос!", botButtons);
     await ctx.reply("⚠️⚠️Начинаю анализ по Eldorado⚠️⚠️", botButtons);
-    await eldoradoFunction(bot);
+    await eldoradoFunction(bot, "silent");
     await ctx.reply("⚠️⚠️Начинаю анализ по FunPay⚠️⚠️", botButtons);
-    await funPayParser(bot);
+    await funPayParser(bot, "silent");
   } else {
     ctx.reply("👍", botButtons);
   }
@@ -46,13 +46,13 @@ bot.launch();
 
 const bootstrap = async () => {
   const jobThreeHours = new CronJob("0 0 */3 * * *", async () => {
-    await eldoradoFunction(bot);
-    await funPayParser(bot);
+    await eldoradoFunction(bot, "main");
+    await funPayParser(bot, "main");
   });
   jobThreeHours.start();
   // const jobMin = new CronJob("0 */1 * * * *", async () => {
-  //   await eldoradoFunction(bot);
-  //   await funPayParser(bot);
+  //   await eldoradoFunction(bot, "main");
+  //   await funPayParser(bot, "main");
   // });
   // jobMin.start();
   try {

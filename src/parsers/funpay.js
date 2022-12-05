@@ -13,7 +13,7 @@ const searchWords = [
   "grandmaster",
   "top 500",
 ];
-const funPayParser = async (bot) => {
+const funPayParser = async (bot, mode) => {
   await fetch("https://funpay.com/lots/139/")
     .then((response) => response.text())
     .then(async (response) => {
@@ -77,6 +77,7 @@ const funPayParser = async (bot) => {
           lowestUser: {
             username: acc.userName || "",
           },
+          mode,
         });
         await account.save();
       }
@@ -87,6 +88,7 @@ const funPayParser = async (bot) => {
     siteName: "FunPay-overwatch-accounts",
     limit: searchWords.length * 2,
     searchWords: searchWords,
+    mode,
   });
 };
 module.exports = { funPayParser };

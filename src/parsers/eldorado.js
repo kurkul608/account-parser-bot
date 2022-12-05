@@ -33,7 +33,7 @@ const requestsEldorado = [
   },
 ];
 
-const eldoradoFunction = async (bot) => {
+const eldoradoFunction = async (bot, mode) => {
   for (const requestData of requestsEldorado) {
     await fetch(requestData.url)
       .then((response) => response.json())
@@ -70,6 +70,7 @@ const eldoradoFunction = async (bot) => {
               }
             ).offer.offerTitle || "no title",
           lowestUser: (results[0] || { user: undefined }).user,
+          mode,
         });
         await account.save();
       });
@@ -80,6 +81,7 @@ const eldoradoFunction = async (bot) => {
     siteName: "Eldorado-overwatch-accounts",
     limit: requestsEldorado.length * 2,
     searchWords: requestsEldorado.map((req) => req.name),
+    mode,
   });
 };
 

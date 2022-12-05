@@ -47,6 +47,10 @@ const Account = new Schema({
     description: String,
     isVerified: Boolean,
   },
+  mode: {
+    type: String,
+    required: true,
+  },
   created: {
     type: Date,
     default: Date.now,

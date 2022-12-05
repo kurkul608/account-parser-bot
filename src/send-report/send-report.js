@@ -2,7 +2,14 @@ const AccountModel = require("../models/account.model");
 const UserModel = require("../models/user.model");
 const moment = require("moment");
 
-const sendReport = async ({ bot, startText, siteName, limit, searchWords }) => {
+const sendReport = async ({
+  bot,
+  startText,
+  siteName,
+  limit,
+  searchWords,
+  mode,
+}) => {
   const users = await UserModel.find();
   for (const user of users) {
     if (user.sendInfo) {
@@ -10,6 +17,7 @@ const sendReport = async ({ bot, startText, siteName, limit, searchWords }) => {
 
       const accounts = await AccountModel.find({
         siteName,
+        mode: mode,
       })
         .sort({ date: "desc" })
         .limit(limit);
@@ -37,15 +45,37 @@ const sendReport = async ({ bot, startText, siteName, limit, searchWords }) => {
             }. 👤\nНазвание лота:  ${filteredSortedData[0].lowestTitle}.  \n`;
 
             if (filteredSortedData[1]) {
+              const daysDiff = moment(filteredSortedData[1].date).diff(
+                moment(filteredSortedData[0].date),
+                "days"
+              );
+              const hoursDiff = moment(filteredSortedData[1].date).diff(
+                moment(filteredSortedData[0].date),
+                "hours"
+              );
+              const minutesDiff = moment(filteredSortedData[1].date).diff(
+                moment(filteredSortedData[0].date),
+                "minutes"
+              );
+              const secondsDiff = moment(filteredSortedData[1].date).diff(
+                moment(filteredSortedData[0].date),
+                "seconds"
+              );
               const difference =
                 filteredSortedData[1].total - filteredSortedData[0].total;
-              text += `За прошедшие 3 часа количество аккаунтов ${
+              text += `От предыдщего замера количество аккаунтов - ${
                 difference === 0
                   ? "не изменилось"
                   : difference > 0
                   ? `уменьшилось на ${Math.abs(difference)}`
                   : `увеличилось на ${Math.abs(difference)}`
-              }\n`;
+              }.\nПредыдщий замер был: ${
+                daysDiff > 30 ? daysDiff % 30 : daysDiff
+              } дней, ${hoursDiff > 24 ? hoursDiff % 24 : hoursDiff}  часов, ${
+                minutesDiff > 60 ? minutesDiff % 60 : minutesDiff
+              }  минут, ${
+                secondsDiff > 60 ? secondsDiff % 60 : secondsDiff
+              }  секунд назад.\n`;
             }
           }
         });
