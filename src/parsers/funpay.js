@@ -1,7 +1,7 @@
 const jsdom = require("jsdom");
 const AccountModel = require("../models/account.model");
 const moment = require("moment/moment");
-const UserModel = require("../models/user.model");
+const { sendReport } = require("../send-report/send-report");
 const { JSDOM } = jsdom;
 
 const searchWords = [
@@ -68,69 +68,25 @@ const funPayParser = async (bot) => {
       for (const acc of data) {
         const account = await new AccountModel({
           date: moment().format(),
-          siteName: "FunPay",
+          siteName: "FunPay-overwatch-accounts",
           name: acc.key,
           total: acc.total,
           lowestPrice: acc.price,
-          lowestDescription: acc.title,
-          lowestTitle: acc.title,
+          lowestDescription: acc.title || "",
+          lowestTitle: acc.title || "",
           lowestUser: {
-            username: acc.userName,
+            username: acc.userName || "",
           },
         });
         await account.save();
       }
     });
-  const users = await UserModel.find();
-  for (const user of users) {
-    if (user.sendInfo) {
-      await bot.telegram.sendMessage(
-        user.chatId,
-        "Анализ по FunPay был успешно произведен"
-      );
-
-      let text = "❗Данные по FunPay❗\n";
-
-      const accounts = await AccountModel.find({
-        siteName: "FunPay",
-      })
-        .sort({ date: "desc" })
-        .limit(searchWords.length * 2);
-
-      if (accounts && accounts.length) {
-        searchWords.forEach((word) => {
-          const filteredSortedData = accounts
-            .filter((result) => result.name === word)
-            .sort((a, b) => moment(a.date).unix() - moment(b.date).unix());
-          if (filteredSortedData.length) {
-            text += `\nНа ${moment(filteredSortedData[0].date).format(
-              "YYYY MM DD HH:mm"
-            )}. ✅ \n На площадке продается ${
-              filteredSortedData[0].total
-            } аккаунтов ${
-              filteredSortedData[0].name
-            }. 👤\n Минимальная цена на аккаунт типа ${
-              filteredSortedData[0].name
-            } составляет ${filteredSortedData[0].lowestPrice}US$D 💲\n`;
-
-            if (filteredSortedData[1]) {
-              const difference =
-                filteredSortedData[1].total - filteredSortedData[0].total;
-              text += `За прошедшие 3 часа количество аккаунтов ${
-                difference === 0
-                  ? "не изменилось"
-                  : difference > 0
-                  ? `уменьшилось на ${difference}`
-                  : `увеличилось на ${difference}`
-              }`;
-            }
-          }
-        });
-      } else {
-        text += "⚠️Не удалось получить данные⚠️";
-      }
-      await bot.telegram.sendMessage(user.chatId, text);
-    }
-  }
+  await sendReport({
+    bot,
+    startText: "❗Данные по FunPay❗\n",
+    siteName: "FunPay-overwatch-accounts",
+    limit: searchWords.length * 2,
+    searchWords: searchWords,
+  });
 };
 module.exports = { funPayParser };

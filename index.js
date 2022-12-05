@@ -1,11 +1,11 @@
 const { Telegraf, Markup } = require("telegraf");
 const { message } = require("telegraf/filters");
 const CronJob = require("cron").CronJob;
-const { eldoradoFunction } = require("./parsers/eldorado");
+const { eldoradoFunction } = require("./src/parsers/eldorado");
 require("dotenv").config();
 const mongoose = require("mongoose");
-const UserModel = require("./models/user.model");
-const { funPayParser } = require("./parsers/funpay");
+const UserModel = require("./src/models/user.model");
+const { funPayParser } = require("./src/parsers/funpay");
 
 const botButtons = Markup.keyboard([
   [
@@ -33,7 +33,7 @@ bot.start(async (ctx) => {
 });
 bot.on(message("text"), async (ctx) => {
   if (ctx.message.text === "Получить актуальные данные прямо сейчас ✌") {
-    ctx.reply("Делаю запрос!", botButtons);
+    await ctx.reply("Делаю запрос!", botButtons);
     await ctx.reply("⚠️⚠️Начинаю анализ по Eldorado⚠️⚠️", botButtons);
     await eldoradoFunction(bot);
     await ctx.reply("⚠️⚠️Начинаю анализ по FunPay⚠️⚠️", botButtons);
